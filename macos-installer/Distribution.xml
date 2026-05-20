@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>PhotoGIMP</title>
+    <organization>com.diolinux.photogimp</organization>
+    <domains enable_localSystem="false" enable_currentUserHome="true"/>
+
+    <options
+        customize="never"
+        require-scripts="true"
+        rootVolumeOnly="true"
+        hostArchitectures="x86_64,arm64"
+    />
+
+    <welcome    file="welcome.html" mime-type="text/html"/>
+    <license    file="LICENSE" mime-type="text/plain"/>
+    <conclusion file="conclusion.html" mime-type="text/html"/>
+
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.diolinux.photogimp.config"/>
+        </line>
+    </choices-outline>
+
+    <choice
+        id="default"
+        title="PhotoGIMP"/>
+
+    <choice
+        id="com.diolinux.photogimp.config"
+        visible="false"
+        title="PhotoGIMP Configuration Files">
+        <pkg-ref id="com.diolinux.photogimp.config"/>
+    </choice>
+
+    <pkg-ref id="com.diolinux.photogimp.config"
+             version="3.0.0"
+             onConclusion="none">PhotoGIMP-config.pkg</pkg-ref>
+
+</installer-gui-script>

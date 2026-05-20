@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+LOGGED_IN_USER=$( /usr/bin/stat -f "%Su" /dev/console )
+USER_HOME=$( /usr/bin/dscl . -read /Users/"$LOGGED_IN_USER" NFSHomeDirectory | awk '{print $2}' )
+GIMP_BASE="$USER_HOME/Library/Application Support/GIMP"
+SOURCE_DIR="$GIMP_BASE/3.0"
+
+GIMP_VERSION="3.0"
+if [ -f /private/tmp/photogimp-target-version ]; then
+    GIMP_VERSION=$( cat /private/tmp/photogimp-target-version )
+    rm -f /private/tmp/photogimp-target-version
+fi
+
+TARGET_DIR="$GIMP_BASE/$GIMP_VERSION"
+
+if [ "$GIMP_VERSION" != "3.0" ] && [ -d "$SOURCE_DIR" ]; then
+    mkdir -p "$TARGET_DIR"
+    cp -R "$SOURCE_DIR"/ "$TARGET_DIR"/
+    rm -rf "$SOURCE_DIR"
+fi
+
+if [ -d "$TARGET_DIR" ]; then
+    chown -R "$LOGGED_IN_USER":staff "$TARGET_DIR"
+fi
+
+exit 0

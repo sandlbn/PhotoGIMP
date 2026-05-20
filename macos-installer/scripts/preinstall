@@ -1,0 +1,35 @@
+#!/bin/bash
+set -euo pipefail
+
+LOGGED_IN_USER=$( /usr/bin/stat -f "%Su" /dev/console )
+USER_HOME=$( /usr/bin/dscl . -read /Users/"$LOGGED_IN_USER" NFSHomeDirectory | awk '{print $2}' )
+GIMP_BASE="$USER_HOME/Library/Application Support/GIMP"
+
+GIMP_VERSION=""
+if [ -d "/Applications/GIMP.app" ]; then
+    FULL_VERSION=$( defaults read /Applications/GIMP.app/Contents/Info.plist CFBundleShortVersionString 2>/dev/null || echo "" )
+    GIMP_VERSION=$( echo "$FULL_VERSION" | cut -d. -f1,2 )
+fi
+
+if [ -z "$GIMP_VERSION" ]; then
+    for dir in "$GIMP_BASE"/*/; do
+        if [ -d "$dir" ]; then
+            GIMP_VERSION=$( basename "$dir" )
+        fi
+    done
+fi
+
+if [ -z "$GIMP_VERSION" ]; then
+    GIMP_VERSION="3.0"
+fi
+
+echo "$GIMP_VERSION" > /private/tmp/photogimp-target-version
+
+GIMP_CONFIG_DIR="$GIMP_BASE/$GIMP_VERSION"
+if [ -d "$GIMP_CONFIG_DIR" ]; then
+    BACKUP_DIR="$GIMP_BASE/${GIMP_VERSION}-backup-$(date +%Y%m%d-%H%M%S)"
+    cp -R "$GIMP_CONFIG_DIR" "$BACKUP_DIR"
+    chown -R "$LOGGED_IN_USER":staff "$BACKUP_DIR"
+fi
+
+exit 0
